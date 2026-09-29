@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,10 +23,13 @@ jobs:
           flutter-version: '3.35.0'
           channel: stable
 
+      - name: Enable Flutter web
+        run: flutter create . --platforms web
+
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Build web
+      - name: Build Flutter web
         run: flutter build web --release
 
       - name: Upload website
@@ -34,6 +40,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+
     permissions:
       pages: write
       id-token: write
