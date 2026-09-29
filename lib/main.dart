@@ -21,8 +21,28 @@ class MyAIChatbot extends StatelessWidget {
   }
 }
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
+
+  @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  final TextEditingController controller = TextEditingController();
+
+  final List<String> messages = [];
+
+  void sendMessage() {
+    final message = controller.text.trim();
+
+    if (message.isEmpty) return;
+
+    setState(() {
+      messages.add("You: $message");
+      controller.clear();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,34 +50,56 @@ class ChatScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('🤖 My AI Chatbot'),
       ),
+
       body: Column(
         children: [
-          const Expanded(
-            child: Center(
-              child: Text(
-                'Hello! 👋\nI am your AI chatbot.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 22),
-              ),
-            ),
+          Expanded(
+            child: messages.isEmpty
+                ? const Center(
+                    child: Text(
+                      'Hello! 👋\nType a message below.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 22),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(12),
+                    itemCount: messages.length,
+                    itemBuilder: (context, index) {
+                      return Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Text(
+                            messages[index],
+                            style: const TextStyle(fontSize: 17),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
           ),
 
           Padding(
             padding: const EdgeInsets.all(12),
             child: Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: TextField(
-                    decoration: InputDecoration(
+                    controller: controller,
+                    onSubmitted: (_) => sendMessage(),
+                    decoration: const InputDecoration(
                       hintText: 'Type a message...',
                       border: OutlineInputBorder(),
                     ),
                   ),
                 ),
+
                 const SizedBox(width: 8),
+
                 IconButton(
-                  onPressed: () {},
+                  onPressed: sendMessage,
                   icon: const Icon(Icons.send),
+                  iconSize: 30,
                 ),
               ],
             ),
